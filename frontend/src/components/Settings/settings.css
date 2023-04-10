@@ -1,0 +1,160 @@
+.settings_page{
+    width: 90%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding:3rem;
+}
+
+.settings_page .header{
+    text-align: left;
+}
+
+.settings_page .header p{
+    margin:0;
+    font-size: 2.2rem;
+}
+
+.settings_page .personal_info_section{
+    width: 95%;
+    height: 50vh;
+    align-self: center;
+    margin-top: 4rem;
+    display:flex;
+    flex-direction: column;
+}
+
+.settings_page .personal_info_section .card{
+    width: 100%;
+    height: 8vh;
+    border:1px solid #f9f6ee1a;
+    margin:0.5rem;
+    margin-top: 1rem;
+    border-radius: 0.3rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding:1rem;
+    color:rgba(255,255,255,0.8);
+    cursor:pointer;
+    transition:0.3s ease;
+}
+
+.settings_page .personal_info_section .card:hover{
+    color:#f9f6ee;
+    border:1px solid #f9f6ee;
+    background-color: #070707;
+}
+
+.settings_page .personal_info_section .card p{
+    margin:0;
+}
+
+.settings_page .personal_info_section .edit_button{
+    width:10%;
+    height: 95%;
+    border:none;
+    background-color: transparent;
+    cursor:pointer;
+    background-color:#5dbea27c;
+    color:rgba(255,255,255,0.9);
+    font-size: 1rem;
+    font-family: 'Lato';
+    font-weight: bolder;
+    border-radius: 0.6rem;
+    transition:0.3s ease;
+}
+
+.settings_page .personal_info_section .edit_button:hover{
+    background-color: #5dbea2d1;
+    color:#f9f6ee;
+    transform: translateY(-2%);
+}
+.settings_page .personal_info_section .edit_button:active{
+    transform:scale(95%);
+}
+
+.settings_page .personal_info_section .edit_button.delete{
+   background-color: rgba(74, 20, 31, 0.79);
+}
+.settings_page .personal_info_section .edit_button.delete:hover{
+    color:#f9f6ee;
+    transform: translateY(-2%);
+    background-color: rgba(202, 43, 75, 0.783);
+}
+.settings_page .personal_info_section .edit_button.delete:active{
+    transform:scale(95%);
+}
+
+
+/* Update Area */
+.settings_page .update_area{
+    position: absolute;
+    top:30%;
+    right:2%;
+    width: 62%;
+    height: 60vh;
+    backdrop-filter: blur(10px);
+    box-shadow: rgba(220, 222, 224, 0.2) 0px 8px 24px;
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius: 0.6rem;
+    padding:1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor:pointer;
+}
+
+.settings_page .update_area div{
+    width: 60%;
+    height: fit-content;
+    padding:0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.settings_page .update_area div h3{
+    align-self: flex-start;
+    font-size: 2rem;
+}
+.settings_page .update_area div input{
+    background-color: transparent;
+    border:none;
+    color:#f9f6ee;
+    width: 50%;
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    align-self: flex-start;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.settings_page .update_area .confirm_update_button{
+    height: 2.2rem;
+    width: 20%;
+    margin-top: 4rem;
+    align-self: flex-start;
+    background-color: #5dbea27c;
+    border:none;
+    color:rgba(255,255,255,0.9);
+    font-family: 'Lato';
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-radius: 0.6rem;
+    cursor:pointer;
+    transition: 0.3s ease;
+}
+
+.settings_page .update_area .confirm_update_button:hover{
+    color:#f9f6ee;
+    background-color: #5dbea2d1;
+    transform: translateY(-2%);
+}
+
+input::placeholder{
+    font-size: 1rem;
+}
+
+/* Update Area */

@@ -1,0 +1,112 @@
+.myOrdersSection::-webkit-scrollbar {
+    display: none;
+  }
+.myOrdersSection {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.myOrdersSection{
+    width: 90%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding:3rem;
+    overflow: scroll;
+    overflow-x: hidden;
+}
+
+.myOrdersSection .order_header{
+    display: flex;
+    height: 6rem;
+    flex-direction: column;
+    justify-content:flex-start;
+    align-items: flex-start;
+}
+
+.myOrdersSection .order_header p{
+    margin:0.3rem;
+    color:#f9f6ee;
+    filter:contrast(1.75);
+}
+
+.myOrdersSection .orders_container{
+    width: 90%;
+    min-height: 20rem;
+    height: fit-content;
+    align-self: center;
+    margin-top: 3rem;
+}
+
+
+.myOrdersSection .orders_container .order_card{
+    width: 100%;
+    height: 12vh;
+    background-color: #0f0f0f;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding:0.6rem;
+    border-radius: 0.6rem;
+    margin:1rem 0.5rem;
+    padding:0.5rem 1rem;
+}
+
+.myOrdersSection .orders_container .order_card .id_date{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.myOrdersSection .orders_container .order_card .id_date h3{
+    
+    font-size: 1rem;
+    filter:contrast(1.75);
+    color:rgba(255,255,255,0.8);
+}
+
+.myOrdersSection .orders_container .order_card .info{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.myOrdersSection .orders_container .order_card .info  div{
+    width: 40%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.myOrdersSection .orders_container .order_card .info  h3{
+    margin:0;
+    filter:contrast(1.75);
+    color:rgba(255,255,255,0.8);
+    font-size: 1rem;
+}
+
+.myOrdersSection .orders_container .order_card .info button{
+    font-family: 'Lato';
+    background-color: transparent;
+    border:none;
+    background-color: rgba(74, 20, 31, 0.79);
+    color:rgba(255,255,255,0.9);
+    border-radius: 0.6rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor:pointer;
+    transition: 0.3s ease; 
+    height: 2.2rem;
+    width: 12%;
+}
+.myOrdersSection .orders_container .order_card .info button:hover{
+    color:#f9f6ee;
+    transform: translateY(-2%);
+    background-color: rgba(202, 43, 75, 0.783);
+}

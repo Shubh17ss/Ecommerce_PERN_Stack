@@ -1,0 +1,79 @@
+.footer_container{
+    height:40vh;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #000;
+}
+
+.footer_container .footer_left{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width:30%;
+}
+.footer_container .footer_left h3{
+    color:rgba(255,255,255,0.9);
+    font-size: 2rem;
+    font-weight: 400;
+    filter:contrast(3px);
+    cursor:pointer;
+}
+.footer_container .footer_left img{
+    width:50%;
+}
+
+
+/* Mid Footer */
+.footer_container .footer_mid{
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    justify-content:flex-start;
+    align-items: center;
+    align-self: flex-end;
+    
+}
+.footer_container .footer_mid .brand_name_container{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-bottom: 4rem;
+    
+}
+
+.footer_container .footer_mid h1,h2{
+    color:crimson;
+    font-size: 4rem;
+    margin:0.4rem;
+    filter:contrast(3px);
+}
+.footer_container .footer_mid h3{
+    color:rgba(255,255,255,0.8);
+    transition:0.3s ease;
+}
+.footer_container .footer_mid h3:hover{
+    color:crimson;
+    cursor:pointer;
+}
+/* Mid Footer */
+
+
+
+/* Right Footer */
+.footer_container .footer_right{
+    width: 30%;
+    height: 230px;
+}
+.footer_container .footer_right h3{
+    font-size: 2rem;
+    font-weight: 400;
+    color:rgba(255,255,255,0.9);
+    filter:contrast(3px);
+}
+
+/* Right Footer */

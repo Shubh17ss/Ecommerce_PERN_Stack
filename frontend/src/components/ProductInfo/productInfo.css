@@ -1,0 +1,75 @@
+.product_page{
+    width: 100%;
+    min-height: 100vh;
+    height: fit-content ;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    padding:0;
+    margin:0;
+}
+
+
+.product_page_container{
+    width: 100%;
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4rem;
+    
+}
+
+.product_page_container .carousel_container{
+    width: 45%;
+    height: 50rem;
+    display: flex;
+    justify-content:center;
+    align-items: flex-start;
+}
+
+
+
+.product_page_container .carousel_container img{
+    width: 25rem;
+    height:28rem;
+    border-radius: 0.6rem;
+}
+
+.product_page_container .information_container{
+    width: 55%;
+    height: 50rem;
+    display:flex;
+    align-items: flex-start;
+    flex-direction: column;
+    
+}
+.product_page_container .information_container p{
+    color:#f9f6ee;
+    filter:contrast(1.75);
+    margin:0.6rem;
+}
+
+/* Reviews container */
+.product_page .reviews_container{
+    width: 100%;
+    min-height:50vh;
+    height:fit-content;
+    display: flex;
+    flex-direction: row;
+
+}
+
+.product_page .add_review_section{
+    width: 40%;
+    height: 30vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color:#fff;
+    font-size: 1.3rem;
+    margin:1rem;
+}
+/* Reviews container */

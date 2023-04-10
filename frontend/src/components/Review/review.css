@@ -1,0 +1,38 @@
+.review_box{
+    width: 60%;
+    height:3rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding:1rem;
+    color:#fff;
+}
+
+.review_box .profile_logo{
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border:2px solid rgba(255,255,255,0.5);
+    color:crimson;
+}
+
+
+.review_box .comment_area{
+    width: 70%;
+    text-align: left;
+    margin-left: 1rem;
+}
+
+.review_box .nameRatingContainer{
+    width: 15%;
+    font-size: 0.7rem;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}

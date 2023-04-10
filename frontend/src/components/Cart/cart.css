@@ -1,0 +1,123 @@
+.cart_page_container{
+    width: 100%;
+    min-height: 100vh;
+    height: fit-content;
+    margin-top: 4rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    
+}
+
+.cart_page_container .empty_cart_container{
+    width: 100%;
+    height: 100vh;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+.cart_page_container .empty_cart_container h3{
+    color:#f9f6ee;
+    font-size: 3rem;
+    width: 50%;
+}
+
+.cart_page_container .cart_products_container{
+    width: 60%;
+    min-height: 50vh;
+    height: fit-content;
+    margin-top: 4rem;
+    margin-left: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+   }
+
+.cart_page_container .cart_products_container .header_info{
+    width: 100%;
+    height:4rem;
+    margin:0;   
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding:0 1rem;
+}
+.cart_page_container .cart_products_container .header_info h4{
+    color:rgba(255,255,255,0.8);
+    filter:contrast(3px);
+    margin-left: 1rem;
+}
+
+.cart_page_container .order_total_container{
+    width:40%;
+    height: 50vh;
+    margin-top: 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: rgba(255, 255, 255, 0.35) 0px 5px 15px;
+    border-radius: 0.6rem;
+    margin-right: 1rem;
+}
+
+.cart_page_container .order_total_container div{
+    width: 70%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cart_page_container .order_total_container div h3{
+    color:#f9f6eece;
+    filter:contrast(1.75);
+}
+
+.cart_page_container .order_total_container div h4{
+    color:#f9f6eef0;
+    filter:contrast(1.75);
+    font-size: 1rem;
+}
+
+.cart_page_container .order_total_container button{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 70%;
+    height: 3rem;
+    margin-top: 4rem;
+    font-family: 'Lato';
+    background-color: rgba(74, 20, 31, 0.79);
+    color:rgba(255, 255, 255, 0.846);
+    border:none;
+    border-radius: 0.6rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor:pointer;
+    transition: 0.3s ease;
+}
+
+.cart_page_container .order_total_container button:hover{
+    color:#f9f6ee;
+    transform: translateY(-2%);
+    background-color: rgba(202, 43, 75, 0.574);
+}
+
+.cart_page_container .order_total_container button:active{
+    transform: scale(95%);
+}
+
+.cart_page_container .order_total_container button .button_loading{
+    width:2rem;
+    height: 2rem;
+    border-bottom: 1px solid white;
+    border-radius: 50%;
+    animation: loadingRotate 800ms linear infinite;
+}
+
+@keyframes loadingRotate {
+    to {
+        transform:rotateZ(360deg);
+    }
+}
