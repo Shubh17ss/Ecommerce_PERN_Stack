@@ -41,11 +41,10 @@ export const Orders = () => {
   const getSingleOrderDetails = async (order_id) => {
     setLoading(true);
     await axios.get(`/api/v3/orders/getorder/${order_id}`).then(async (response) => {
-      console.log(response.data);
       setOrder(response.data);
       setStatus(response.data.order_data.status);
       let temp = [];
-      response.data.products.ordered_products.forEach(item => {
+      response.data.ordered_products.forEach(item => {
         temp.push(item.product_id);
       })
 
@@ -169,13 +168,13 @@ export const Orders = () => {
                         </div>
                         <div >
                           <h3>Shipping Details</h3>
-                          <p>Address id: #{1233}</p>
-                          <p>Name: Shubh Sharma</p>
-                          <p>Street:</p>
-                          <p>Pincode:</p>
-                          <p>City:</p>
-                          <p>State:</p>
-                          <p>Country:</p>
+                          <p>Address id: #{order.address_data.id}</p>
+                          <p>Name: {order.address_data.name}</p>
+                          <p>Street: {order.address_data.street}</p>
+                          <p>Pincode: {order.address_data.postal_code}</p>
+                          <p>City: {order.address_data.city}</p>
+                          <p>State: {order.address_data.state}</p>
+                          <p>Country: {order.address_data.country}</p>
                         </div>
                         <div>
                           <h3>Payment Details</h3>
@@ -191,14 +190,14 @@ export const Orders = () => {
 
                       <div className='products_list'>
                         <div className='list'>
-                          <h3 style={{ marginBottom: '2rem' }}>Ordered products ({order.products.ordered_products.length})</h3>
+                          <h3 style={{ marginBottom: '2rem' }}>Ordered products ({order.ordered_products.length})</h3>
                           {products.length > 0 ?
                             products.map((item, index) => (
                               <div key={index} style={{ display: 'flex', height: '3rem', justifyContent: 'flexStart', alignItems: 'center', border: 'none' }} >
                                 <img src={item.image_url !== null ? item.image_url : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIcSH43jNYq-ql_yfxy0KkB6ezhrSd1cki57cmCFDC_45dA5EluAt4gyFZBgNMQRDgKp8&usqp=CAU'} alt='/' style={{ width: '3rem', height: '3rem' }} />
                                 <p>Product id: #{item.id}</p>
                                 <p style={{ minWidth: '35%', marginLeft: '2rem' }}>Name: {item.name}</p>
-                                <p style={{ marginLeft: '2rem', minWidth: '10%' }}>Qty: {order.products.ordered_products[index].quantity}</p>
+                                <p style={{ marginLeft: '2rem', minWidth: '10%' }}>Qty: {order.ordered_products[index].quantity}</p>
                                 <p>Price: ₹{item.price.toLocaleString()}</p>
                               </div>
                             ))

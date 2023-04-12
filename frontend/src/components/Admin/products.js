@@ -78,46 +78,59 @@ export const Products = () => {
         setLoading(true);
         axios.post('/api/v1/products/add', body, config).then(async (response) => {
             const product_id = response.data.results.rows[0].id;
-            let index = 1;
-            const prom = new Promise((resolve, reject) => {
-                images.forEach(async image => {
-                    let blob = await fetch(image).then(r => r.blob());
-                    const storageRef = ref(storage, `products/${product_id}/${index}.jpg`);
-                    uploadBytes(storageRef, blob).then((snapshot) => {
-                        console.log('Image uploaded');
-                        resolve();
+            console.log(product_id);
+            if (images.length > 0) {
+                let index = 1;
+                const prom = new Promise((resolve, reject) => {
+                    images.forEach(async image => {
+                        let blob = await fetch(image).then(r => r.blob());
+                        const storageRef = ref(storage, `products/${product_id}/${index}.jpg`);
+                        uploadBytes(storageRef, blob).then((snapshot) => {
+                            console.log('Image uploaded');
+                            resolve();
+                        })
+                        index++;
                     })
-                    index++;
                 })
-            })
 
-            prom.then(async () => {
-                await getDownloadURL(ref(storage, `products/${product_id}/1.jpg`)).then(async (url) => {
-                    console.log('Download url for image is inside promise .then');
-                    const body = {
-                        url: url,
-                        id: product_id,
-                    }
-                    const config = {
-                        headers: {
-                            'Content-type': 'Application/json'
+                prom.then(async () => {
+                    await getDownloadURL(ref(storage, `products/${product_id}/1.jpg`)).then(async (url) => {
+                        console.log('Download url for image is inside promise .then');
+                        const body = {
+                            url: url,
+                            id: product_id,
                         }
-                    }
-                    await axios.put('/api/v1/products/update/addImage', body, config).then((response) => {
-                        setLoading(false);
-                        successNotification('Product added successfully');
-                        setName("");
-                        setCategory("");
-                        setDescription("");
-                        setPrice("");
-                        setStock("");
-                        setImages([]);
-                    }).catch((error) => {
-                        console.log(error);
+                        const config = {
+                            headers: {
+                                'Content-type': 'Application/json'
+                            }
+                        }
+                        await axios.put('/api/v1/products/update/addImage', body, config).then((response) => {
+                            setLoading(false);
+                            successNotification('Product added successfully');
+                            setName("");
+                            setCategory("");
+                            setDescription("");
+                            setPrice("");
+                            setStock("");
+                            setImages([]);
+                        }).catch((error) => {
+                            console.log(error);
+                        })
                     })
-                })
 
-            })
+                })
+            }
+            else{
+                setLoading(false);
+                successNotification('Product added successfully');
+                setName("");
+                setCategory("");
+                setDescription("");
+                setPrice("");
+                setStock("");
+                setImages([]);
+            }
 
 
 
@@ -127,7 +140,7 @@ export const Products = () => {
     }
 
     useEffect(() => {
-       getAllProducts();
+        getAllProducts();
     }, [])
 
     return (
@@ -194,7 +207,7 @@ export const Products = () => {
                                 <div className='card_skeleton'></div>
                                 <div className='card_skeleton'></div>
                                 <div className='card_skeleton'></div>
-                                
+
                             </div>
                         }
                     </div>

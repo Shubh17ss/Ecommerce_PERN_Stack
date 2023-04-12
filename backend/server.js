@@ -6,7 +6,10 @@ const productRoutes=require('./routes/productRoute')
 const userRoutes=require('./routes/usersRoute');
 const orderRoutes=require('./routes/orderRoute');
 const sendMailRoutes=require('./routes/sendMail');
+const path=require('path');
+
 const cookieParser = require('cookie-parser');
+
 
 
 process.on('uncaughtException',(err)=>{
@@ -23,14 +26,17 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-app.get('/',(req,res)=>{
-    res.send('default route');
-})
-
 app.use('/api/v1',productRoutes);
 app.use('/api/v2',userRoutes);
 app.use('/api/v3',orderRoutes);
 app.use('/api/v4',sendMailRoutes);
+
+app.use(express.static(path.join(__dirname,"../frontend/build")));
+
+
+app.get("*",(req,res)=>{
+    res.sendFile(path.resolve(__dirname,"../frontend/build/index.html"));
+})
 
 
 const server=app.listen(process.env.PORT,()=>{

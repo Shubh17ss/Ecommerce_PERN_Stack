@@ -16,13 +16,15 @@ h1,h3{
 
 .admin_panel_page{
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
+    height: fit-content;
     background-color: #090909;
     color:#acacac;
     display:flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: flex-start;
+    padding-bottom: 2rem;
 }
 
 /* Navigation Area */
@@ -123,7 +125,8 @@ h1,h3{
 /* Information Area */
 .admin_panel_page .information_area{
     width: 75%;
-    height: 90vh;
+    height: 80vh;
     padding:2rem;
+  
 }
 /* Information Area */

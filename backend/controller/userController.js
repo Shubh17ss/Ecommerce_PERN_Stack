@@ -1,9 +1,11 @@
 const pool = require('../database/connect');
+const client = require('../database/elephantPg');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const crypto = require('crypto');
 const nodeMailer = require('nodemailer');
+const { error } = require('console');
 
 dotenv.config({ path: './config/config.env' });
 
@@ -13,45 +15,31 @@ const cookie_options = {
 }
 
 const getAllUsers = (req, res) => {
-    pool.query('SELECT * from users ORDER BY id', (error, results) => {
-        if (error) {
-            res.status(401).send('Internal Server Error');
-        }
-        else {
+
+    client.query('select * from users order by id', (error, results) => {
+        if (error)
+            res.status(400).send(error.message);
+        else
             res.status(200).json(results.rows);
-        }
     })
 }
 
 const createUser = async (req, res) => {
-    const { name, email, password, image_url, role } = req.body;
+    const { name, email, password, role } = req.body;
     const bPassword = await bcrypt.hash(password, 3);
-
-    pool.query('SELECT * FROM USERS WHERE EMAIL=$1', [email], (error, results) => {
-        if (error) {
-            res.status(401).send(error.message);
+    client.query('INSERT INTO USERS(name, email, password, role) VALUES($1,$2,$3,$4) returning id', [name, email, bPassword, role],async (error, results) => {
+        if (error)
+            res.status(400).send(error.message);
+        else
+        {
+            const token=await getAuthToken(results.rows[0].id);
+            res.status(200).cookie("token", token, cookie_options).json({
+                success: true,
+                results,
+                token,
+            })
         }
-        else {
-            if (results.rows.length > 0) {
-                res.status(404).send('User already exists');
-            }
-            else {
-                pool.query('INSERT INTO users(name, email, password, image_url, role) VALUES($1,$2,$3,$4,$5) RETURNING id', [name, email, bPassword, image_url, role], async (error, results) => {
-                    if (error) {
-                        res.status(401).send(error.message);
-                    }
-                    else {
-
-                        const token = await getAuthToken(results.rows[0].id);
-                        res.status(200).cookie("token", token, cookie_options).json({
-                            success: true,
-                            results,
-                            token,
-                        })
-                    }
-                })
-            }
-        }
+            
     })
 }
 
@@ -61,7 +49,7 @@ const loginUser = (req, res) => {
         res.status(400).send('Invalid Request...Please Provide a valid Email or Password');
     }
     else {
-        pool.query('SELECT * FROM USERS WHERE EMAIL=$1', [email], async (error, results) => {
+        client.query('SELECT * FROM USERS WHERE EMAIL=$1', [email], async (error, results) => {
             if (error) {
                 res.status(401).send(error.message);
             }
@@ -103,7 +91,7 @@ const logOutUser = (req, res) => {
 const forgotPassword = async (req, res) => {
 
     const email = req.body.email;
-    pool.query('SELECT email from users where email=$1', [email], async (error, results) => {
+    client.query('SELECT email from users where email=$1', [email], async (error, results) => {
         if (error)
             res.status(400).send(error.message);
         else {
@@ -124,7 +112,7 @@ const forgotPassword = async (req, res) => {
                     res.status(200).send('Mail Sent');
 
                 } catch (error) {
-                    pool.query('UPDATE users SET resetpasswordtoken=$1,resetpasswordexpire=$2 where email=$3', [undefined, undefined, email], (error, results) => {
+                    client.query('UPDATE users SET resetpasswordtoken=$1,resetpasswordexpire=$2 where email=$3', [undefined, undefined, email], (error, results) => {
                         if (error)
                             res.status(400).send(error.message);
                     })
@@ -141,7 +129,7 @@ const resetPassword = async (req, res) => {
     const confirmPassword = req.body.confirmPassword;
     const resetToken = req.params.token;
     const resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
-    pool.query('SELECT email, resetpasswordexpire from users where resetpasswordtoken=$1', [resetPasswordToken], async (error, results) => {
+    client.query('SELECT email, resetpasswordexpire from users where resetpasswordtoken=$1', [resetPasswordToken], async (error, results) => {
         if (error)
             res.status(400).send(error.message);
         else {
@@ -160,7 +148,7 @@ const resetPassword = async (req, res) => {
                     }
                     else {
                         const bPassword = await bcrypt.hash(password, 3);
-                        pool.query('UPDATE users SET password=$1, resetpasswordtoken=$2, resetpasswordexpire=$3 where email=$4', [bPassword, undefined, undefined, email], (error, results) => {
+                        client.query('UPDATE users SET password=$1, resetpasswordtoken=$2, resetpasswordexpire=$3 where email=$4', [bPassword, undefined, undefined, email], (error, results) => {
                             if (error) {
                                 res.status(400).send(error.message);
                             }
@@ -185,7 +173,7 @@ const resetPassword = async (req, res) => {
 const getUserProfile = (req, res) => {
     const { token } = req.cookies;
     const id = jwt.verify(token, process.env.JWT_SECRET).id;
-    pool.query('SELECT * FROM users where id=$1', [id], (error, results) => {
+    client.query('SELECT * FROM users where id=$1', [id], (error, results) => {
         if (error)
             res.status(400).send(error.message);
         else
@@ -200,13 +188,13 @@ const changePassword = async (req, res) => {
     console.log(oldPassword, newPassword);
     const { token } = req.cookies;
     const id = jwt.verify(token, process.env.JWT_SECRET).id;
-    pool.query('select password from users where id=$1', [id], async (error, results) => {
+    client.query('select password from users where id=$1', [id], async (error, results) => {
         if (error)
             res.status(400).send(error.message);
         else {
             if (await bcrypt.compare(oldPassword, results.rows[0].password)) {
 
-                pool.query('UPDATE users SET password=$1', [newPassword], (error, results) => {
+                client.query('UPDATE users SET password=$1', [newPassword], (error, results) => {
                     if (error)
                         res.status(501).send(error.message);
                     else {
@@ -229,7 +217,7 @@ const updateProfile = async (req, res) => {
     const id = jwt.verify(token, process.env.JWT_SECRET).id;
     const { name, email } = req.body;
     console.log(name, email);
-    pool.query('UPDATE users SET name = $1, email = $2 where id=$3', [name, email, id], (error, results) => {
+    client.query('UPDATE users SET name = $1, email = $2 where id=$3', [name, email, id], (error, results) => {
         if (error) {
             res.status(400).send(error.message);
         }
@@ -245,32 +233,33 @@ const updateProfile = async (req, res) => {
 const deleteUserProfile = (req, res) => {
     const { token } = req.cookies;
     const id = jwt.verify(token, process.env.JWT_SECRET).id;
-    const {password}=req.body;
-    console.log('Password is ',password);
-    pool.query('SELECT password from users where id=$1',[id],async (error,results)=>{
-        if(error){
+    const { password } = req.body;
+    client.query('SELECT password from users where id=$1', [id], async (error, results) => {
+        if (error) {
             res.status(400).send(error.message);
         }
-        else
-        {
-            if(await bcrypt.compare(password,results.rows[0].password)){
-                pool.query('DELETE FROM USERS where id=$1',[id],(error,results)=>{
-                    if(error)
-                    res.status(400).send(error.message);
+        else {
+            if (await bcrypt.compare(password, results.rows[0].password)) {
+                client.query('DELETE FROM USERS where id=$1', [id], (error, results) => {
+                    if (error)
+                        res.status(400).send(error.message);
                     else
-                    res.status(200).send('Profile deleted successfully');
+                        res.status(200).send('Profile deleted successfully');
                 })
             }
             else
-            res.status(400).send('Wrong password entered.');
+                res.status(400).send('Wrong password entered.');
         }
     })
 }
 
+
+//To make the below functions client specific and remove pool query.
+
 const getAlladdress = (req, res) => {
     const { token } = req.cookies;
     const id = jwt.verify(token, process.env.JWT_SECRET).id;
-    pool.query('SELECT * FROM address where user_id=$1', [id], (error, results) => {
+    client.query('SELECT * FROM address where user_id=$1', [id], (error, results) => {
         if (error)
             res.status(400).send(error.message);
         else
@@ -283,7 +272,7 @@ const addShippingAddress = (req, res) => {
     const id = jwt.verify(token, process.env.JWT_SECRET).id;
     const { name, street, city, pincode, state, country } = req.body;
 
-    pool.query('INSERT INTO address(name, street, city, postal_code, state, country, user_id) VALUES($1,$2,$3,$4,$5,$6,$7)', [name, street, city, pincode, state, country, id], (error, results) => {
+    client.query('INSERT INTO address(name, street, city, postal_code, state, country, user_id) VALUES($1,$2,$3,$4,$5,$6,$7)', [name, street, city, pincode, state, country, id], (error, results) => {
         if (error)
             res.status(400).send(error.message);
         else
@@ -297,7 +286,7 @@ const addShippingAddress = (req, res) => {
 
 const deleteShippingAddress = (req, res) => {
     const id = req.params.id;
-    pool.query('DELETE FROM address where id=$1', [id], (error, results) => {
+    client.query('DELETE FROM address where id=$1', [id], (error, results) => {
         if (error)
             res.status(400).send(error.message);
         else
@@ -309,7 +298,7 @@ const deleteShippingAddress = (req, res) => {
 //Admin Specific functions
 const getSingleUserProfile = (req, res) => {
     const id = req.params.id;
-    pool.query('SELECT * from users where id=$1', [id], (error, results) => {
+    client.query('SELECT * from users where id=$1', [id], (error, results) => {
         if (error)
             res.status(400).send(error.message);
         else {
@@ -326,7 +315,7 @@ const getSingleUserProfile = (req, res) => {
 
 const updateSingleUserProfile = (req, res) => {
     const { name, email, role } = req.body;
-    pool.query('UPDATE users SET name=$1, email=$2, role=$3 where id=$4', [name, email, role, req.params.id], (error, results) => {
+    client.query('UPDATE users SET name=$1, email=$2, role=$3 where id=$4', [name, email, role, req.params.id], (error, results) => {
         if (error)
             res.status(201).send(error.message);
         else
@@ -339,7 +328,7 @@ const updateSingleUserProfile = (req, res) => {
 
 const deleteUser = (req, res) => {
     const id = req.params.id;
-    pool.query('DELETE FROM users where id=$1', [id], (error, results) => {
+    client.query('DELETE FROM users where id=$1', [id], (error, results) => {
         if (error)
             res.status(400).send(error.message);
         else {
@@ -366,7 +355,7 @@ const getResetPasswordToken = (email) => {
     const resetToken = crypto.randomBytes(20).toString("hex");
     const resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
     const resetPasswordExpire = Date.now() + 15 * 60 * 1000;
-    pool.query('UPDATE users SET resetpasswordtoken = $1,  resetpasswordexpire = $2 where email=$3', [resetPasswordToken, resetPasswordExpire, email], (error, results) => {
+    client.query('UPDATE users SET resetpasswordtoken = $1,  resetpasswordexpire = $2 where email=$3', [resetPasswordToken, resetPasswordExpire, email], (error, results) => {
         if (error)
             console.log(error.message);
     })

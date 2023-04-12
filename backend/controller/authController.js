@@ -1,5 +1,6 @@
 const jwt=require('jsonwebtoken');
 const pool=require('../database/connect');
+const client=require('../database/elephantPg');
 
 const isUserAuthenticated=async (req,res,next)=>{
     const {token}=req.cookies;
@@ -9,7 +10,7 @@ const isUserAuthenticated=async (req,res,next)=>{
     else
     {
         const decodedToken=jwt.verify(token,process.env.JWT_SECRET);
-        pool.query('SELECT * FROM USERS WHERE id=$1',[decodedToken.id],(error,results)=>{
+        client.query('SELECT * FROM USERS WHERE id=$1',[decodedToken.id],(error,results)=>{
             if(error){
                 res.status(400).send(error.message);
             }
@@ -31,7 +32,7 @@ const authorizedRoles=(...roles)=>{
     return (req,res,next)=>{
         const {token}=req.cookies;
         const decodedToken=jwt.decode(token,process.env.JWT_SECRET);
-        pool.query('SELECT role from users where id=$1',[decodedToken.id],(error,results)=>{
+        client.query('SELECT role from users where id=$1',[decodedToken.id],(error,results)=>{
             if(error){
                 res.status(400).send(error.message);
             }

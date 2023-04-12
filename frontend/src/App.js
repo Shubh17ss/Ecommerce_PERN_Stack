@@ -32,7 +32,7 @@ function App() {
     <div className="App">
       <Router>
         <Provider>
-        {window.location.href!=="http://localhost:3000/admin_panel"?<Header />:<></>}
+        {window.location.href!=="http://localhost:4000/admin_panel"?<Header />:<></>}
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/products/page/:value" element={<Products />} />
@@ -46,7 +46,7 @@ function App() {
             <Route path="/admin_panel" element={<AdminPanel/>}/>
           </Routes>
         </Provider>
-        {window.location.href!=="http://localhost:3000/admin_panel"?<Footer />:<></>}
+        {window.location.href!=="http://localhost:4000/admin_panel"?<Footer />:<></>}
       </Router>
     </div>
   );

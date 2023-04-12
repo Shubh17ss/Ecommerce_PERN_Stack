@@ -66,6 +66,7 @@ export const SignIn = () => {
             role:'user'
         }
         await axios.post('/api/v2/createUser',body,config).then((response)=>{
+           console.log(response);
            localStorage.setItem('UserId',response.data.results.rows[0].id);
            localStorage.setItem('Auth Token',response.data.token);
            setSLoading(false);

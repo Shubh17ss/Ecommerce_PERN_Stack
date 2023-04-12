@@ -1,4 +1,5 @@
 const pool = require('../database/connect');
+const client=require('../database/elephantPg');
 const jwt = require('jsonwebtoken');
 
 
@@ -12,7 +13,7 @@ const createOrder = (req, res) => {
     const date = new Date();
 
     const { orderedItems, shipping_id, payment_method} = req.body;
-    pool.query('INSERT INTO orders(user_id, status, created_at,address_id) VALUES($1, $2, $3, $4) RETURNING order_id', [user_id, "Processing", date, shipping_id], async (error, results) => {
+    client.query('INSERT INTO orders(user_id, status, created_at,address_id) VALUES($1, $2, $3, $4) RETURNING order_id', [user_id, "Processing", date, shipping_id], async (error, results) => {
         if (error)
             res.status(400).send(error.message);
         else {
@@ -31,89 +32,69 @@ const createOrder = (req, res) => {
 
 const getSingleOrder = async (req, res) => {
     const order_id = req.params.id;
-    let flag = 0;
     let order_data;
-    let shipping_data;
     let ordered_products;
     let payment_data;
+    let address_id;
+    let address_data;
     let ordered_by;
 
-    const ret = new Promise((resolve, reject) => {
-        pool.query('SELECT * FROM orders where order_id=$1', [order_id], (error, results) => {
-            if (error)
-                flag = 1;
-            else {
-                if (results.rows.length == 0)
-                    reject();
+    client.query('SELECT * FROM ORDERS WHERE ORDER_ID =$1',[order_id],(error,results)=>{
+        if(error)
+        res.status(400).send(error.message);
+        else
+        {   order_data=results.rows[0];
+            address_id=results.rows[0].address_id;
+            client.query('SELECT * FROM ordered_products where order_id=$1 ORDER BY product_id', [order_id],(error,results)=>{
+                if(error)
+                res.status(400).send(error.message);
                 else
-                    order_data = results.rows[0];
-            }
-        })
-
-        pool.query('SELECT * FROM ordered_products where order_id=$1 ORDER BY product_id', [order_id], (error, results) => {
-            if (error)
-                flag = 1;
-            else
-                ordered_products = results.rows;
-        })
-
-        pool.query('SELECT * FROM payments where order_id=$1', [order_id], (error, results) => {
-            if (error)
-                flag = 1;
-            else
-                payment_data = results.rows[0];
-
-        })
-
-        pool.query('SELECT * FROM shipping where order_id=$1', [order_id], (error, results) => {
-            if (error)
-                flag = 1;
-            else {
-                shipping_data = results.rows[0];
-            }
-
-        })
-
-        setTimeout(() => {
-            pool.query('SELECT name, email from users where id=(select user_id from orders where order_id=$1)', [order_id], (error, results) => {
-                if (error)
-                    flag = 1;
-                else {
-                    console.log(results.rows[0]);
-                    ordered_by = results.rows[0];
-                    resolve();
+                {
+                    ordered_products=results.rows;
+                    client.query('SELECT * FROM PAYMENTS WHERE order_id=$1',[order_id],(error,results)=>{
+                        if(error)
+                        res.status(400).send(error.message);
+                        else
+                        {
+                            payment_data=results.rows[0];
+                            client.query('SELECT * FROM ADDRESS WHERE id=$1',[address_id],(error,results)=>{
+                                if(error)
+                                res.status(400).send(error.message);
+                                else
+                                {   
+                                    address_data=results.rows[0];
+                                    client.query('SELECT name,email from users where id=(SELECT user_id from orders where order_id=$1)',[order_id],(error,results)=>{
+                                        if(error)
+                                        res.status(400).send(error.message);
+                                        else
+                                        {
+                                            ordered_by=results.rows[0];
+                                            res.status(200).json({
+                                                order_data,
+                                                ordered_products,
+                                                payment_data,
+                                                address_data,
+                                                ordered_by
+                                            })
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
                 }
             })
-        }, 1000)
-
-
-
-    })
-
-    ret.then(async () => {
-        if (flag === 1)
-            res.status(400).send('Internal Server Error');
-        else {
-            const products = { ordered_products };
-            console.log(products);
-            res.status(200).json({
-                order_data,
-                ordered_by,
-                shipping_data,
-                payment_data,
-                products,
-            })
         }
-    }).catch(() => {
-        res.status(404).send("Order Not found");
     })
+
+  
 }
 
 const getMyOrders = (req, res) => {
     const { token } = req.cookies;
     const user_id = jwt.decode(token, process.env.JWT_SECRET).id;
 
-    pool.query('SELECT *,payments.order_total FROM ORDERS INNER JOIN payments on orders.order_id=payments.order_id WHERE ORDERS.user_id = $1 ORDER BY orders.order_id DESC', [user_id], (error, results) => {
+    client.query('SELECT *,payments.order_total FROM ORDERS INNER JOIN payments on orders.order_id=payments.order_id WHERE ORDERS.user_id = $1 ORDER BY orders.order_id DESC', [user_id], (error, results) => {
         if (error)
             res.status(400).send(error.message)
         else {
@@ -162,7 +143,7 @@ const getMyOrders = (req, res) => {
 //Admin specifig functions
 
 const getAllOrders = (req, res) => {
-    pool.query('SELECT * FROM ORDERS INNER JOIN payments ON payments.order_id=ORDERS.order_id ORDER BY ORDERS.order_id', (error, results) => {
+    client.query('SELECT * FROM ORDERS INNER JOIN payments ON payments.order_id=ORDERS.order_id ORDER BY ORDERS.order_id', (error, results) => {
         if (error)
             res.status(400).send(error.message);
         else {
@@ -180,7 +161,7 @@ const updateOrderStatus = (req, res) => {
     const order_id = req.params.id;
     const status = req.body.status;
     const date = status === "Delivered" ? new Date() : null;
-    pool.query('SELECT status from orders where order_id=$1', [order_id], (error, results) => {
+    client.query('SELECT status from orders where order_id=$1', [order_id], (error, results) => {
         if (error)
             res.status(400).send(error.message);
         else {
@@ -188,12 +169,12 @@ const updateOrderStatus = (req, res) => {
                 res.status(404).send('Order Already Delivered');
 
             else {
-                pool.query('UPDATE orders SET delivered_at=$1', [date], (error, results) => {
+                client.query('UPDATE orders SET delivered_at=$1', [date], (error, results) => {
                     if (error) {
                         res.status(400).send(error.message);
                     }
                     else {
-                        pool.query('UPDATE orders SET status=$1 where order_id=$2', [status, order_id], async (error, results) => {
+                        client.query('UPDATE orders SET status=$1 where order_id=$2', [status, order_id], async (error, results) => {
                             if (error)
                                 res.status(400).send(error.message);
                             else {
@@ -219,7 +200,7 @@ const updateOrderStatus = (req, res) => {
 
 const deleteOrder = (req,res) =>{
     const order_id=req.params.id;
-    pool.query('DELETE FROM ORDERS WHERE ORDER_ID = $1',[order_id],(error,results)=>{
+    client.query('DELETE FROM ORDERS WHERE ORDER_ID = $1',[order_id],(error,results)=>{
         if(error)
         res.status(400).send(error.message);
         else
@@ -241,11 +222,11 @@ const insertAndGetInfo = (orderedItems, order_id ,payment_method) => {
     let ret = new Promise((resolve, reject) => {
         orderedItems.forEach((orderItem) => {
 
-            pool.query('INSERT INTO ordered_products(order_id, product_id, quantity) VALUES($1,$2,$3)', [order_id, orderItem.id, orderItem.quantity], (error, results) => {
+            client.query('INSERT INTO ordered_products(order_id, product_id, quantity) VALUES($1,$2,$3)', [order_id, orderItem.id, orderItem.quantity], (error, results) => {
                 if (error)
                     console.log(error.message);
             });
-            pool.query('SELECT price FROM products where id=$1', [orderItem.id], (error, results) => {
+            client.query('SELECT price FROM products where id=$1', [orderItem.id], (error, results) => {
                 if (error)
                     console.log(error.message);
                 else {
@@ -263,7 +244,7 @@ const insertAndGetInfo = (orderedItems, order_id ,payment_method) => {
         const tax = 0;
         const shipping_price = 79;
         const order_total = cart_value + tax + shipping_price;
-        pool.query('INSERT INTO PAYMENTS(order_id, payment_status, cart_value, tax, shipping_price, order_total, payment_mode) VALUES($1,$2,$3,$4,$5,$6,$7)', [order_id, "Pending", cart_value, tax, shipping_price, order_total, payment_method], (error, results) => {
+        client.query('INSERT INTO PAYMENTS(order_id, payment_status, cart_value, tax, shipping_price, order_total, payment_mode) VALUES($1,$2,$3,$4,$5,$6,$7)', [order_id, "Pending", cart_value, tax, shipping_price, order_total, payment_method], (error, results) => {
             if (error)
                 console.log(error.message);
             else
@@ -273,13 +254,13 @@ const insertAndGetInfo = (orderedItems, order_id ,payment_method) => {
 }
 
 const updateStock = (order_id) => {
-    pool.query('SELECT product_id, quantity from ordered_products where order_id=$1', [order_id], (error, results) => {
+    client.query('SELECT product_id, quantity from ordered_products where order_id=$1', [order_id], (error, results) => {
         if (error)
             console.log(error.message);
         else {
             const products = results.rows;
             products.forEach(product => {
-                pool.query('UPDATE products SET stock=(SELECT stock from products where id=$1)-$2 where id=$1', [product.product_id, product.quantity], (error, results) => {
+                client.query('UPDATE products SET stock=(SELECT stock from products where id=$1)-$2 where id=$1', [product.product_id, product.quantity], (error, results) => {
                     if (error)
                         console.log(error.message);
                     else
