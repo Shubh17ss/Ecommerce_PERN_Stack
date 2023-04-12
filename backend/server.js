@@ -19,6 +19,7 @@ process.on('uncaughtException',(err)=>{
 })
 
 
+if(process.env.NODE_ENV!=="PRODUCTION")
 dotenv.config({path:'./config/config.env'})
 
 app.use(cors());
